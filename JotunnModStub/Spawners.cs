@@ -26,7 +26,9 @@ namespace Sporelings
         // ReSharper disable once MemberCanBePrivate.Global
         [UsedImplicitly] public static Shroomer Instance;
         private AssetBundle _assetBundle;
-
+        internal static ScriptableObject SE_Gwyrn;
+        
+        
         // ReSharper disable once IdentifierTypo
         public Shroomer()
         {
@@ -39,6 +41,7 @@ namespace Sporelings
         {
             // ReSharper disable once StringLiteralTypo
             _assetBundle = AssetUtils.LoadAssetBundleFromResources("viktorshroom", typeof(Shroomer).Assembly);
+            SE_Gwyrn = _assetBundle.LoadAsset<ScriptableObject>("BeltA_stat");
 
 #if DEBUG
             foreach (var assetName in _assetBundle.GetAllAssetNames())
@@ -51,12 +54,16 @@ namespace Sporelings
             LoadPrefabs();
             LoadPieces();
             //LoadStatusEffects();
-
+            PrefabManager.OnVanillaPrefabsAvailable += LoadSEStat;
             _assetBundle.Unload(false);
             _harmony = Harmony.CreateAndPatchAll(typeof(Shroomer).Assembly, PluginGuid);
         }
 
-
+        internal void LoadSEStat()
+        {
+          ObjectDB.instance.m_StatusEffects.Add(SE_Gwyrn as StatusEffect);
+          PrefabManager.OnVanillaPrefabsAvailable -= LoadSEStat;
+        }
 
         [UsedImplicitly]
         private void OnDestroy()
